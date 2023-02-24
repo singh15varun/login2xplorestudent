@@ -6,7 +6,7 @@ and open the template in the editor.
 -->
 <html lang="en">
 <head>
-<title>Bootstrap Example</title>
+<title>Student Registration Form</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet"
@@ -53,6 +53,7 @@ placeholder="Enter DOE" name="edate">
 </form>
 </div>
 <script>
+var con_token='90932649|-31949276205418410|90948671';
 function validateAndGetFormData() {
 var empIdVar = $("#empId").val();
 if (empIdVar === "") {
@@ -60,8 +61,8 @@ alert("Employee ID Required Value");
 $("#empId").focus();
 return "";
 }
-var rollnoVar = $("#rollno").val();
-if (rollnoVar === "") {
+var rollnovar = $("#rollno").val();
+if (rollnovar === "") {
 alert(" roll is Required Value");
 $("#rollno").focus();
 return "";
@@ -82,21 +83,60 @@ var edatevar = $("#edate").val();
 if (edatevar === "") {
 alert("edate is Required Value");
 $("#edate").focus();
-return "";
-var addressvar = $("#edate").val();
+return "";}
+var addressvar = $("#address").val();
 if (addressvar === "") {
 alert("address is Required Value");
 $("#address").focus();
 return "";
 }
 var jsonStrObj = {
-rollno: rollno,
-studentNamevar:studentName ,
-bdatevar:bdate,
-edatevar:edate,
-addressvar:address,
+ rollno: rollnovar,
+ studentName: studentNamevar ,
+ bdate: bdatevar,
+ edate:edatevar,
+ address:addressvar,
 };
 return JSON.stringify(jsonStrObj);
+}
+function saveRecNo2LS(jsonobj){
+    var lvData=JSON.parse(jsonobj.data);
+    localStorage.setItem('recno',lvData.rec_no);
+}
+function getstuidasjsonobj(){
+    var rollnovar1=$("#rollno").val();
+    var jsonStr={
+        rollno: rollnovar1
+    };
+    return JSON.stringify(jsonStr);
+}
+function filldata(jsonobj){
+    saveRecNo2LS(jsonobj);
+    var record=JSON.parse(jsonobj.data).record;
+    $("#studentName").val(record.studentName);
+    $("#bdate").val(record.bdate);
+    $("#edate").val(record.edate);
+    $("#address").val(record.address);
+
+}
+
+function getstu(){
+    var stuidjsonobj=getstuidasjsonobj();
+    var getRequest=createGET_BY_KEYRequest(con_token,"STUDENT-TABLE","SCHOOL-DB",stuidjsonobj);
+    jQuery.ajaxSetup({async:false});
+    var resJsonobj=executeCommandAtGivenBaseUrl(getRequest,"http://api.login2explore.com:5577", "/api/irl");
+    jQuery.ajaxSetup({async:true});
+    if(resJsonobj.status==400){
+        $("#save").prop('disabled',false);
+        $("#reset").prop('disabled',false);
+        $("#studentName").focus();
+    }else if(resJsonobj.status==200){
+        $("#rollno").prop("disabled",true)
+        filldata(resJsonobj);
+        $("#change").prop("disabled",false);
+        $("reset").prop("disabled",false);
+        $("#studentName").focus();
+    }
 }
 function resetForm() {
 $("#rollno").val("")
@@ -104,11 +144,6 @@ $("#studentName").val("");
 $("#bdate").val("");
 $("#edate").val("");
 $("#address").val("");
-$("#rollno").prop("disabled",false);
-$("#studentName").prop("disabled",true);
-$("#address").prop("disabled",true);
-$("#bdate").prop("disabled",true);
-$("#edate").prop("disabled",true);
 $("#rollno").focus();
 }
 
@@ -129,7 +164,7 @@ resetForm();
 function changedata(){
     $("#change").prop("disabled",true);
     jsoncng=validateAndGetFormData();
-    var putReqStr = createUPDATERecordRequest("90932649|-31949276205418410|90948671",jsoncng, "STUDENT-TABLE", "SCHOOL-DB",localStorage.getitem('recno'));
+    var putReqStr = createUPDATERecordRequest("90932649|-31949276205418410|90948671",jsoncng, "STUDENT-TABLE", "SCHOOL-DB",localStorage.getItem('recno'));
     jQuery.ajaxSetup({async: false});
     var resultObj = executeCommandAtGivenBaseUrl(putReqStr,
     "http://api.login2explore.com:5577", "/api/iml");
@@ -138,3 +173,4 @@ function changedata(){
 
 }
 </script>
+
